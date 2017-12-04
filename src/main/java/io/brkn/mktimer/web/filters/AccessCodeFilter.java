@@ -1,6 +1,7 @@
 package io.brkn.mktimer.web.filters;
 
-import io.brkn.mktimer.web.exceptions.UnauthorizedException;
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +12,11 @@ import java.io.IOException;
 
 @Component
 public class AccessCodeFilter implements Filter {
-    @Value("${mktimer.access-code}")
-    private String accessCode;
+    @Value("${mktimer.username}")
+    private String username;
+
+    @Value("${mktimer.password}")
+    private String password;
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
@@ -24,11 +28,12 @@ public class AccessCodeFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
-        String accessCode = request.getHeader("authorization");
+        String authHeader = request.getHeader("authorization");
+        String expectedAuthHeader = "Basic " + Base64.encode((this.username + ":" + this.password).getBytes("UTF-8"));
 
-        if (accessCode == null || accessCode.isEmpty()) {
+        if (authHeader == null || authHeader.isEmpty()) {
             response.sendError(401, "Unauthorized");
-        } else if (!this.accessCode.equals(accessCode)) {
+        } else if (!expectedAuthHeader.equals(authHeader)) {
             response.sendError(401, "Invalid token");
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
