@@ -1,4 +1,4 @@
-package io.brkn.mktimer.web.form;
+package io.brkn.mktimer.web.forms;
 
 public class CreateCategoryForm {
     private String name;
