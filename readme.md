@@ -9,3 +9,5 @@ Utility for timing things!
 * Add endpoint for editing an activity
 * Add JWT authentication for all endpoints (not the start activity endpoint due
   to tasker)
+* Add ics-endpoint which generates a calendar with activities for a given
+  category
