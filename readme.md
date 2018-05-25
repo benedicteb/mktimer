@@ -3,9 +3,21 @@
 This is a tiny web app you can use for timing things. For example for keeping
 track of work hours.
 
+## Building
+
+```shell
+$ mvn clean package docker:build
+```
+
+To also push the created tags to dockerhub (will create `:latest` and `:version`
+every time) use:
+
+```shell
+$ mvn clean package docker:build -DpushImage
+```
+
 ## To do
 
--   Make Dockerfile automatically use latest build
 -   Add flyway support
 -   Add a UUID field to all acitivies and categories
 -   Add endpoint for editing an activity
