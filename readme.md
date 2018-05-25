@@ -26,3 +26,4 @@ $ mvn clean package docker:build -DpushImage
 -   Add ics-endpoint which generates a calendar with activities for a given
     category
 -   Build a frontend
+-   Fix the tests so they don't always fail when running maven since no postgres is up
