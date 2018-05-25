@@ -1,7 +1,5 @@
 package io.brkn.mktimer.web.filters;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -9,6 +7,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Base64;
 
 @Component
 public class AccessCodeFilter implements Filter {
@@ -29,7 +28,7 @@ public class AccessCodeFilter implements Filter {
         HttpServletResponse response = (HttpServletResponse) servletResponse;
 
         String authHeader = request.getHeader("authorization");
-        String expectedAuthHeader = "Basic " + Base64.encode((this.username + ":" + this.password).getBytes("UTF-8"));
+        String expectedAuthHeader = "Basic " + Base64.getEncoder().encodeToString((this.username + ":" + this.password).getBytes("UTF-8"));
 
         if (authHeader == null || authHeader.isEmpty()) {
             response.sendError(401, "Unauthorized");
