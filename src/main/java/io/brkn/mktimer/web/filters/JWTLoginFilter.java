@@ -19,12 +19,12 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
-    @Autowired
     private TokenAuthenticationService authenticationService;
 
-    public JWTLoginFilter(String url, AuthenticationManager authManager) {
+    public JWTLoginFilter(String url, AuthenticationManager authManager, TokenAuthenticationService authenticationService) {
         super(new AntPathRequestMatcher(url));
         setAuthenticationManager(authManager);
+        this.authenticationService = authenticationService;
     }
 
     @Override

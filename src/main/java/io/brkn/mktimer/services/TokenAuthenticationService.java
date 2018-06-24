@@ -14,7 +14,6 @@ import java.util.Date;
 
 import static java.util.Collections.emptyList;
 
-@Service
 public class TokenAuthenticationService {
     @Value("${mktimer.jwt.secret}")
     private String SECRET;

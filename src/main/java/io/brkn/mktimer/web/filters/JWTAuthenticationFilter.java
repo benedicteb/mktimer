@@ -14,8 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class JWTAuthenticationFilter implements Filter {
-    @Autowired
     private TokenAuthenticationService authenticationService;
+
+    public JWTAuthenticationFilter(TokenAuthenticationService authenticationService) {
+        super();
+        this.authenticationService = authenticationService;
+    }
 
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)

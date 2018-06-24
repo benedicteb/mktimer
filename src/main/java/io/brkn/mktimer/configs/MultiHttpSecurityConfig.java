@@ -1,5 +1,6 @@
 package io.brkn.mktimer.configs;
 
+import io.brkn.mktimer.services.TokenAuthenticationService;
 import io.brkn.mktimer.web.filters.JWTAuthenticationFilter;
 import io.brkn.mktimer.web.filters.JWTLoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,13 +54,8 @@ public class MultiHttpSecurityConfig {
     @Configuration
     public static class JWTSecurityConfigurationManager extends WebSecurityConfigurerAdapter {
         @Bean
-        public JWTLoginFilter jwtLoginFilter() throws Exception {
-            return new JWTLoginFilter("/login", authenticationManager());
-        }
-
-        @Bean
-        public JWTAuthenticationFilter jwtAuthenticationFilter() {
-            return new JWTAuthenticationFilter();
+        public TokenAuthenticationService tokenAuthenticationService() {
+            return new TokenAuthenticationService();
         }
 
         @Override
@@ -72,9 +68,10 @@ public class MultiHttpSecurityConfig {
                     .anyRequest()
                         .authenticated()
                     .and()
-                        .addFilterBefore(jwtLoginFilter(),
+                        .addFilterBefore(new JWTLoginFilter("/login", authenticationManager(),
+                                        tokenAuthenticationService()),
                                 UsernamePasswordAuthenticationFilter.class)
-                        .addFilterBefore(jwtAuthenticationFilter(),
+                        .addFilterBefore(new JWTAuthenticationFilter(tokenAuthenticationService()),
                                 UsernamePasswordAuthenticationFilter.class);
 
         }
