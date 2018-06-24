@@ -3,6 +3,8 @@ package io.brkn.mktimer.web.filters;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.brkn.mktimer.services.TokenAuthenticationService;
 import io.brkn.mktimer.web.forms.LoginForm;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -17,6 +19,9 @@ import java.io.IOException;
 import java.util.Collections;
 
 public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
+    @Autowired
+    private TokenAuthenticationService authenticationService;
+
     public JWTLoginFilter(String url, AuthenticationManager authManager) {
         super(new AntPathRequestMatcher(url));
         setAuthenticationManager(authManager);
@@ -42,7 +47,7 @@ public class JWTLoginFilter extends AbstractAuthenticationProcessingFilter {
     protected void successfulAuthentication(
             HttpServletRequest req, HttpServletResponse resp,
             FilterChain chain, Authentication auth) {
-        TokenAuthenticationService
+        authenticationService
                 .addAuthentication(resp, auth.getName());
     }
 }

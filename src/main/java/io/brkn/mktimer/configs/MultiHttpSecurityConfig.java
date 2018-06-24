@@ -52,6 +52,16 @@ public class MultiHttpSecurityConfig {
      */
     @Configuration
     public static class JWTSecurityConfigurationManager extends WebSecurityConfigurerAdapter {
+        @Bean
+        public JWTLoginFilter jwtLoginFilter() throws Exception {
+            return new JWTLoginFilter("/login", authenticationManager());
+        }
+
+        @Bean
+        public JWTAuthenticationFilter jwtAuthenticationFilter() {
+            return new JWTAuthenticationFilter();
+        }
+
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -62,9 +72,9 @@ public class MultiHttpSecurityConfig {
                     .anyRequest()
                         .authenticated()
                     .and()
-                        .addFilterBefore(new JWTLoginFilter("/login", authenticationManager()),
+                        .addFilterBefore(jwtLoginFilter(),
                                 UsernamePasswordAuthenticationFilter.class)
-                        .addFilterBefore(new JWTAuthenticationFilter(),
+                        .addFilterBefore(jwtAuthenticationFilter(),
                                 UsernamePasswordAuthenticationFilter.class);
 
         }

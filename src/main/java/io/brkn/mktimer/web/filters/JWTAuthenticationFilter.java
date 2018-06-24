@@ -3,6 +3,8 @@ package io.brkn.mktimer.web.filters;
 import io.brkn.mktimer.services.TokenAuthenticationService;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -12,14 +14,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class JWTAuthenticationFilter implements Filter {
+    @Autowired
+    private TokenAuthenticationService authenticationService;
+
     @Override
     public void doFilter(ServletRequest req, ServletResponse resp, FilterChain chain)
             throws IOException, ServletException {
-        HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) resp;
 
         try {
-            Authentication authentication = TokenAuthenticationService
+            Authentication authentication = authenticationService
                     .getAuthentication((HttpServletRequest) req);
             SecurityContextHolder.getContext()
                     .setAuthentication(authentication);
