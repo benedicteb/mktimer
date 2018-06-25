@@ -1,16 +1,20 @@
 package io.brkn.mktimer.services;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.SignatureException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Date;
+import java.util.UUID;
 
 import static java.util.Collections.emptyList;
 
@@ -28,15 +32,11 @@ public class TokenAuthenticationService {
     private String TOKEN_PREFIX;
 
     public void addAuthentication(HttpServletResponse res, String username) {
-        String jwt = Jwts.builder()
-                .setSubject(username)
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(SignatureAlgorithm.HS512, SECRET)
-                .compact();
-        res.addHeader(HEADER_NAME, TOKEN_PREFIX + " " + jwt);
+        res.addHeader(HEADER_NAME,
+                TOKEN_PREFIX + " " + generateJwtAccessToken(username));
     }
 
-    public Authentication getAuthentication(HttpServletRequest request) throws SignatureException {
+    public Authentication getAuthentication(HttpServletRequest request) throws SignatureException, ExpiredJwtException {
         String token = request.getHeader(HEADER_NAME);
 
         if (token == null || token.isEmpty()) {
@@ -49,8 +49,20 @@ public class TokenAuthenticationService {
                 .getBody()
                 .getSubject();
 
-        return user != null?
+        return user != null ?
                 new UsernamePasswordAuthenticationToken(user, null, emptyList()) :
                 null;
+    }
+
+    public String generateJwtAccessToken(String username) {
+        Date currentTime = new Date();
+
+        return Jwts.builder()
+                .setId(UUID.randomUUID().toString())
+                .setSubject(username)
+                .setIssuedAt(currentTime)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
+                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
     }
 }
