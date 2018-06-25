@@ -73,6 +73,37 @@ public class ActivityTests extends JwtLoggedInBaseTest {
                 .andExpect(status().isOk());
     }
 
+    @Test
+    public void stopActivityUnauthorizedTest() throws Exception {
+        createCategory(testCategoryName);
+
+        mvc.perform(post("/activity/stop?category=" + testCategoryName)
+                .contentType(MediaType.APPLICATION_JSON_UTF8))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void stopActivityJwtAuthTest() throws Exception {
+        createCategory(testCategoryName);
+
+        mvc.perform(post("/activity/stop?category=" + testCategoryName)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void stopActivityBasicAuthTest() throws Exception {
+        createCategory(testCategoryName);
+        String basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString((username + ":"
+                + password).getBytes("UTF-8"));
+
+        mvc.perform(post("/activity/stop?category=" + testCategoryName)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, basicAuthHeader))
+                .andExpect(status().isOk());
+    }
+
     private void createCategory(String categoryName) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(categoryName);
