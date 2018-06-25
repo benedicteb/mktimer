@@ -48,7 +48,7 @@ public class ActivityTests extends JwtLoggedInBaseTest {
 
         mvc.perform(post("/activity/start?category=" + testCategoryName)
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ActivityTests extends JwtLoggedInBaseTest {
 
         mvc.perform(post("/activity/stop?category=" + testCategoryName)
                 .contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test

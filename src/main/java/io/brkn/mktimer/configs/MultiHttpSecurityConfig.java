@@ -1,6 +1,8 @@
 package io.brkn.mktimer.configs;
 
+import io.brkn.mktimer.services.BasicAuthenticationService;
 import io.brkn.mktimer.services.TokenAuthenticationService;
+import io.brkn.mktimer.web.filters.BasicOrTokenAuthenticationFilter;
 import io.brkn.mktimer.web.filters.JWTAuthenticationFilter;
 import io.brkn.mktimer.web.filters.JWTLoginFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,9 @@ public class MultiHttpSecurityConfig {
                             .anyRequest()
                             .authenticated()
                     .and()
-                        .httpBasic();
+                        .addFilterBefore(new BasicOrTokenAuthenticationFilter(basicAuthenticationService(),
+                                tokenAuthenticationService()),
+                                UsernamePasswordAuthenticationFilter.class);
         }
     }
 
@@ -52,12 +56,7 @@ public class MultiHttpSecurityConfig {
      * Since no order is set - this will be run last.
      */
     @Configuration
-    public static class JWTSecurityConfigurationManager extends WebSecurityConfigurerAdapter {
-        @Bean
-        public TokenAuthenticationService tokenAuthenticationService() {
-            return new TokenAuthenticationService();
-        }
-
+    public class JWTSecurityConfigurationManager extends WebSecurityConfigurerAdapter {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
@@ -89,5 +88,15 @@ public class MultiHttpSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public TokenAuthenticationService tokenAuthenticationService() {
+        return new TokenAuthenticationService();
+    }
+
+    @Bean
+    public BasicAuthenticationService basicAuthenticationService() {
+        return new BasicAuthenticationService();
     }
 }
