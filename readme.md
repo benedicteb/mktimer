@@ -16,6 +16,20 @@ every time) use:
 $ mvn clean package docker:build -DpushImage
 ```
 
+## Testing
+
+First start the database instance.
+
+```shell
+$ docker-compose up -d
+```
+
+Then run the tests.
+
+```shell
+$ mvn test
+```
+
 ## To do
 
 -   Add flyway support
