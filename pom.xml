@@ -5,11 +5,11 @@
 
 	<groupId>io.brkn</groupId>
 	<artifactId>mktimer</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
 
 	<name>mktimer</name>
-	<description>Demo project for Spring Boot</description>
+	<description>A utility for timing things</description>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
