@@ -1,23 +1,34 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import {StyleSheet, Text, View} from "react-native";
+import {Provider, connect} from "react-redux";
+import {Font} from "expo";
 
-export default class App extends React.Component {
+import store from "./src/store";
+import App from "./src";
+
+const mapDispatchToProps = dispatch => ({});
+
+const mapStateToProps = state => ({
+  user: state.user
+});
+
+const StateAwareApp = connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
+
+export default class MyApp extends React.Component {
+  componentDidMount() {
+    Font.loadAsync({
+      Roboto: require("./assets/fonts/Roboto-Regular.ttf")
+    });
+  }
+
   render() {
     return (
-      <View style={styles.container}>
-        <Text>Open up App.js to start working on your app!</Text>
-        <Text>Changes you make will automatically reload.</Text>
-        <Text>Shake your phone to open the developer menu.</Text>
-      </View>
+      <Provider store={store}>
+        <StateAwareApp />
+      </Provider>
     );
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
