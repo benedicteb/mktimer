@@ -1,6 +1,5 @@
 package io.brkn.mktimer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.brkn.mktimer.web.forms.LoginForm;
 import org.junit.Test;
 import org.springframework.http.MediaType;

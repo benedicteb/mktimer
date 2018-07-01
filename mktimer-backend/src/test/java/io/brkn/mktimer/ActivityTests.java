@@ -10,7 +10,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.Assert.assertNull;
@@ -187,18 +186,10 @@ public class ActivityTests extends JwtLoggedInBaseTest {
     @Test
     public void getActivitiesBeforeDateTimeShouldWorkTest() throws Exception {
         createCategory(testCategoryName);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
         ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        TimeUnit.SECONDS.sleep(1);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
+        createActivity(new CreateActivityForm(now.minusMinutes(60), now.minusMinutes(30), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(30), now.plusMinutes(60), testCategoryName));
 
         mvc.perform(get("/activity?before=" + now.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -210,18 +201,10 @@ public class ActivityTests extends JwtLoggedInBaseTest {
     @Test
     public void getActivitiesAfterDateTimeShouldWorkTest() throws Exception {
         createCategory(testCategoryName);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
         ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        TimeUnit.SECONDS.sleep(1);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
+        createActivity(new CreateActivityForm(now.minusMinutes(60), now.minusMinutes(30), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(30), now.plusMinutes(60), testCategoryName));
 
         mvc.perform(get("/activity?after=" + now.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -234,31 +217,13 @@ public class ActivityTests extends JwtLoggedInBaseTest {
     public void getActivitiesBeforeAndAfterDateTimeShouldWorkTest() throws Exception {
         createCategory(testCategoryName);
 
-        startActivity(testCategoryName);
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        TimeUnit.SECONDS.sleep(1);
+        createActivity(new CreateActivityForm(now.minusMinutes(60), now.minusMinutes(30), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(15), now.plusMinutes(20), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(30), now.plusMinutes(60), testCategoryName));
 
-        ZonedDateTime after = ZonedDateTime.now(ZoneId.systemDefault());
-
-        TimeUnit.SECONDS.sleep(1);
-
-        startActivity(testCategoryName);
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-
-        ZonedDateTime before = ZonedDateTime.now(ZoneId.systemDefault());
-
-        TimeUnit.SECONDS.sleep(1);
-
-        startActivity(testCategoryName);
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
-        mvc.perform(get("/activity?before=" + before.toString() + "&after=" + after.toString())
+        mvc.perform(get("/activity?before=" + now.plusMinutes(20).toString() + "&after=" + now.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header(AUTHORIZATION, authHeader))
                 .andExpect(status().isOk())
@@ -314,6 +279,14 @@ public class ActivityTests extends JwtLoggedInBaseTest {
                 .header(AUTHORIZATION, authHeader))
                 .andExpect(status().isOk())
                 .andReturn();
+    }
+
+    private void createActivity(CreateActivityForm createActivityForm) throws Exception {
+        mvc.perform(post("/activity")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(createActivityForm))
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk());
     }
 
 }
