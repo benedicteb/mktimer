@@ -5,13 +5,12 @@ import io.brkn.mktimer.domain.Category;
 import io.brkn.mktimer.repository.ActivityRepository;
 import io.brkn.mktimer.repository.CategoryRepository;
 import io.brkn.mktimer.web.exceptions.NotFoundException;
+import io.brkn.mktimer.web.forms.CreateActivityForm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -55,6 +54,22 @@ public class ActivityController {
 
             return activityRepository.findAll();
         }
+    }
+
+    @PostMapping("/activity")
+    public Activity createActivity(@RequestBody @Valid CreateActivityForm form) {
+        Category category = categoryRepository.findByName(form.getCategory())
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+
+        Activity newActivity = new Activity(category, form.getStart());
+
+        if (form.getEnd() != null) {
+            newActivity.setEndDateTime(form.getEnd());
+        }
+
+        activityRepository.save(newActivity);
+
+        return newActivity;
     }
 
     @PostMapping("/activity/start")

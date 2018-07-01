@@ -17,7 +17,6 @@ public class LoginTests extends BaseIntegrationTest {
 
     @Test
     public void jwtLogInShouldReturnAuthTokenHeaderTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         LoginForm loginForm = new LoginForm(username, password);
 
         MvcResult result = mvc.perform(post("/login")

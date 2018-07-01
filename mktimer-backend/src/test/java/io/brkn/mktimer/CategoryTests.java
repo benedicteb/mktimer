@@ -1,6 +1,5 @@
 package io.brkn.mktimer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.brkn.mktimer.web.forms.CreateCategoryForm;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -51,7 +50,6 @@ public class CategoryTests extends JwtLoggedInBaseTest {
 
     @Test
     public void createCategoryUnauthorizedShouldFailTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(testCategory);
 
         mvc.perform(post("/category")
@@ -62,7 +60,6 @@ public class CategoryTests extends JwtLoggedInBaseTest {
 
     @Test
     public void createCategoryWithBasicAuthShouldFailTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(testCategory);
         String basicAuthHeader = "Basic " + Base64.getEncoder().encodeToString((username + ":"
                 + password).getBytes("UTF-8"));
@@ -76,7 +73,6 @@ public class CategoryTests extends JwtLoggedInBaseTest {
 
     @Test
     public void createCategoryWithJwtAuthShouldWorkTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(testCategory);
 
         mvc.perform(post("/category")
@@ -88,7 +84,6 @@ public class CategoryTests extends JwtLoggedInBaseTest {
 
     @Test
     public void createCategoryWithWrongJwtAuthShouldFailTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(testCategory);
 
         mvc.perform(post("/category")

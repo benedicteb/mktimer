@@ -1,6 +1,5 @@
 package io.brkn.mktimer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.brkn.mktimer.web.forms.LoginForm;
 import org.junit.Before;
 import org.junit.runner.RunWith;
@@ -25,7 +24,6 @@ public abstract class JwtLoggedInBaseTest extends BaseIntegrationTest {
 
     @Before
     public void jwtLogIn() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         LoginForm loginForm = new LoginForm(username, password);
 
         MvcResult result = mvc.perform(post("/login")

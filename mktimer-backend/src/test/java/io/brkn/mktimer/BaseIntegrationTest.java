@@ -1,5 +1,8 @@
 package io.brkn.mktimer;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,5 +27,13 @@ public abstract class BaseIntegrationTest extends AbstractTransactionalJUnit4Spr
 
     @Autowired
     protected MockMvc mvc;
+
+    protected static ObjectMapper objectMapper;
+
+    @BeforeClass
+    public static void setup() {
+        objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+    }
 
 }

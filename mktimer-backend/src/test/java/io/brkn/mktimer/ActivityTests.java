@@ -1,6 +1,7 @@
 package io.brkn.mktimer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.brkn.mktimer.domain.Activity;
+import io.brkn.mktimer.web.forms.CreateActivityForm;
 import io.brkn.mktimer.web.forms.CreateCategoryForm;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -12,6 +13,8 @@ import java.util.Base64;
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -262,8 +265,32 @@ public class ActivityTests extends JwtLoggedInBaseTest {
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
+    @Test
+    public void createActivityWithOnlyStartTimeTest() throws Exception {
+        createCategory(testCategoryName);
+
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+        CreateActivityForm createActivityForm = new CreateActivityForm(now, testCategoryName);
+
+        MvcResult result = mvc.perform(post("/activity")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(createActivityForm))
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Activity createdActivity = objectMapper.readValue(result.getResponse().getContentAsString(), Activity.class);
+
+        assertTrue(createdActivity.getStartDateTime().isEqual(now));
+        assertNull(createdActivity.getEndDateTime());
+    }
+
+    @Test
+    public void createActivityWithStartAndEndTest() throws Exception {
+
+    }
+
     private void createCategory(String categoryName) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(categoryName);
 
         mvc.perform(post("/category")
