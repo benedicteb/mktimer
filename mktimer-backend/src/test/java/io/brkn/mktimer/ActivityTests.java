@@ -4,12 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.brkn.mktimer.web.forms.CreateCategoryForm;
 import org.junit.Test;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
+import java.util.concurrent.TimeUnit;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ActivityTests extends JwtLoggedInBaseTest {
@@ -155,6 +161,107 @@ public class ActivityTests extends JwtLoggedInBaseTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    public void getActivitiesFromCategoryShouldOnlyReturnForThatCategoryTest() throws Exception {
+        String secondTestCategory = testCategoryName + "2";
+
+        createCategory(testCategoryName);
+        createCategory(secondTestCategory);
+
+        startActivity(testCategoryName);
+        startActivity(secondTestCategory);
+
+        stopActivity(testCategoryName);
+        stopActivity(secondTestCategory);
+
+        mvc.perform(get("/activity?category=" + testCategoryName)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    public void getActivitiesBeforeDateTimeShouldWorkTest() throws Exception {
+        createCategory(testCategoryName);
+        startActivity(testCategoryName);
+
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+
+        TimeUnit.SECONDS.sleep(1);
+        startActivity(testCategoryName);
+
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        mvc.perform(get("/activity?before=" + now.toString())
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    public void getActivitiesAfterDateTimeShouldWorkTest() throws Exception {
+        createCategory(testCategoryName);
+        startActivity(testCategoryName);
+
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+
+        TimeUnit.SECONDS.sleep(1);
+        startActivity(testCategoryName);
+
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        mvc.perform(get("/activity?after=" + now.toString())
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
+    @Test
+    public void getActivitiesBeforeAndAfterDateTimeShouldWorkTest() throws Exception {
+        createCategory(testCategoryName);
+
+        startActivity(testCategoryName);
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        TimeUnit.SECONDS.sleep(1);
+
+        ZonedDateTime after = ZonedDateTime.now(ZoneId.systemDefault());
+
+        TimeUnit.SECONDS.sleep(1);
+
+        startActivity(testCategoryName);
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        TimeUnit.SECONDS.sleep(1);
+
+        ZonedDateTime before = ZonedDateTime.now(ZoneId.systemDefault());
+
+        TimeUnit.SECONDS.sleep(1);
+
+        startActivity(testCategoryName);
+        TimeUnit.SECONDS.sleep(1);
+        stopActivity(testCategoryName);
+
+        mvc.perform(get("/activity?before=" + before.toString() + "&after=" + after.toString())
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(1)));
+    }
+
     private void createCategory(String categoryName) throws Exception {
         ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(categoryName);
@@ -164,6 +271,22 @@ public class ActivityTests extends JwtLoggedInBaseTest {
                 .content(objectMapper.writeValueAsString(createCategoryForm))
                 .header(AUTHORIZATION, authHeader))
                 .andExpect(status().isOk());
+    }
+
+    private MvcResult startActivity(String categoryName) throws Exception {
+        return mvc.perform(post("/activity/start?category=" + categoryName)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andReturn();
+    }
+
+    private MvcResult stopActivity(String categoryName) throws Exception {
+        return mvc.perform(post("/activity/stop?category=" + categoryName)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andReturn();
     }
 
 }

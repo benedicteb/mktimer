@@ -6,15 +6,14 @@ import io.brkn.mktimer.repository.ActivityRepository;
 import io.brkn.mktimer.repository.CategoryRepository;
 import io.brkn.mktimer.web.exceptions.NotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,13 +26,33 @@ public class ActivityController {
     private CategoryRepository categoryRepository;
 
     @GetMapping("/activity")
-    public Iterable<Activity> getActivities(@RequestParam(required = false) String category) {
-        Iterable<Activity> activitiesIterable;
-
+    public Iterable<Activity> getActivities(@RequestParam(required = false) String category,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO
+                                                    .DATE_TIME) ZonedDateTime after,
+                                            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO
+                                                    .DATE_TIME) ZonedDateTime before) {
         if (category != null) {
             Category categoryObject = getRequiredCategory(category);
+
+            if (before != null && after != null) {
+                return activityRepository.findAllByCategoryAndStartDateTimeAfterAndStartDateTimeBefore
+                        (categoryObject, after, before);
+            } else if (after != null) {
+                return activityRepository.findAllByCategoryAndStartDateTimeAfter(categoryObject, after);
+            } else if (before != null) {
+                return activityRepository.findAllByCategoryAndStartDateTimeBefore(categoryObject, before);
+            }
+
             return activityRepository.findAllByCategory(categoryObject);
         } else {
+            if (before != null && after != null) {
+                return activityRepository.findAllByStartDateTimeAfterAndStartDateTimeBefore(after, before);
+            } else if (after != null) {
+                return activityRepository.findAllByStartDateTimeAfter(after);
+            } else if (before != null) {
+                return activityRepository.findAllByStartDateTimeBefore(before);
+            }
+
             return activityRepository.findAll();
         }
     }
