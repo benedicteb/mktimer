@@ -248,11 +248,30 @@ public class ActivityTests extends JwtLoggedInBaseTest {
 
         assertTrue(createdActivity.getStartDateTime().isEqual(now));
         assertNull(createdActivity.getEndDateTime());
+        assertTrue(createdActivity.getCategory().getName().equals(testCategoryName));
     }
 
     @Test
     public void createActivityWithStartAndEndTest() throws Exception {
+        createCategory(testCategoryName);
 
+        ZonedDateTime start = ZonedDateTime.now(ZoneId.systemDefault());
+        ZonedDateTime end = start.plusMinutes(30);
+
+        CreateActivityForm createActivityForm = new CreateActivityForm(start, end, testCategoryName);
+
+        MvcResult result = mvc.perform(post("/activity")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(createActivityForm))
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Activity createdActivity = objectMapper.readValue(result.getResponse().getContentAsString(), Activity.class);
+
+        assertTrue(createdActivity.getStartDateTime().isEqual(start));
+        assertTrue(createdActivity.getEndDateTime().isEqual(end));
+        assertTrue(createdActivity.getCategory().getName().equals(testCategoryName));
     }
 
     private void createCategory(String categoryName) throws Exception {
