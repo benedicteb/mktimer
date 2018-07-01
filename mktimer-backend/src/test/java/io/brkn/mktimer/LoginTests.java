@@ -1,6 +1,5 @@
 package io.brkn.mktimer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.brkn.mktimer.web.forms.LoginForm;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -17,7 +16,6 @@ public class LoginTests extends BaseIntegrationTest {
 
     @Test
     public void jwtLogInShouldReturnAuthTokenHeaderTest() throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         LoginForm loginForm = new LoginForm(username, password);
 
         MvcResult result = mvc.perform(post("/login")

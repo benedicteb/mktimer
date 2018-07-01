@@ -1,6 +1,7 @@
 package io.brkn.mktimer;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.brkn.mktimer.domain.Activity;
+import io.brkn.mktimer.web.forms.CreateActivityForm;
 import io.brkn.mktimer.web.forms.CreateCategoryForm;
 import org.junit.Test;
 import org.springframework.http.MediaType;
@@ -9,9 +10,10 @@ import org.springframework.test.web.servlet.MvcResult;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Base64;
-import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -184,18 +186,10 @@ public class ActivityTests extends JwtLoggedInBaseTest {
     @Test
     public void getActivitiesBeforeDateTimeShouldWorkTest() throws Exception {
         createCategory(testCategoryName);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
         ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        TimeUnit.SECONDS.sleep(1);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
+        createActivity(new CreateActivityForm(now.minusMinutes(60), now.minusMinutes(30), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(30), now.plusMinutes(60), testCategoryName));
 
         mvc.perform(get("/activity?before=" + now.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -207,18 +201,10 @@ public class ActivityTests extends JwtLoggedInBaseTest {
     @Test
     public void getActivitiesAfterDateTimeShouldWorkTest() throws Exception {
         createCategory(testCategoryName);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
         ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        TimeUnit.SECONDS.sleep(1);
-        startActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
+        createActivity(new CreateActivityForm(now.minusMinutes(60), now.minusMinutes(30), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(30), now.plusMinutes(60), testCategoryName));
 
         mvc.perform(get("/activity?after=" + now.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -231,39 +217,64 @@ public class ActivityTests extends JwtLoggedInBaseTest {
     public void getActivitiesBeforeAndAfterDateTimeShouldWorkTest() throws Exception {
         createCategory(testCategoryName);
 
-        startActivity(testCategoryName);
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
 
-        TimeUnit.SECONDS.sleep(1);
+        createActivity(new CreateActivityForm(now.minusMinutes(60), now.minusMinutes(30), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(15), now.plusMinutes(20), testCategoryName));
+        createActivity(new CreateActivityForm(now.plusMinutes(30), now.plusMinutes(60), testCategoryName));
 
-        ZonedDateTime after = ZonedDateTime.now(ZoneId.systemDefault());
-
-        TimeUnit.SECONDS.sleep(1);
-
-        startActivity(testCategoryName);
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
-        TimeUnit.SECONDS.sleep(1);
-
-        ZonedDateTime before = ZonedDateTime.now(ZoneId.systemDefault());
-
-        TimeUnit.SECONDS.sleep(1);
-
-        startActivity(testCategoryName);
-        TimeUnit.SECONDS.sleep(1);
-        stopActivity(testCategoryName);
-
-        mvc.perform(get("/activity?before=" + before.toString() + "&after=" + after.toString())
+        mvc.perform(get("/activity?before=" + now.plusMinutes(20).toString() + "&after=" + now.toString())
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
                 .header(AUTHORIZATION, authHeader))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(1)));
     }
 
+    @Test
+    public void createActivityWithOnlyStartTimeTest() throws Exception {
+        createCategory(testCategoryName);
+
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.systemDefault());
+        CreateActivityForm createActivityForm = new CreateActivityForm(now, testCategoryName);
+
+        MvcResult result = mvc.perform(post("/activity")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(createActivityForm))
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Activity createdActivity = objectMapper.readValue(result.getResponse().getContentAsString(), Activity.class);
+
+        assertTrue(createdActivity.getStartDateTime().isEqual(now));
+        assertNull(createdActivity.getEndDateTime());
+        assertTrue(createdActivity.getCategory().getName().equals(testCategoryName));
+    }
+
+    @Test
+    public void createActivityWithStartAndEndTest() throws Exception {
+        createCategory(testCategoryName);
+
+        ZonedDateTime start = ZonedDateTime.now(ZoneId.systemDefault());
+        ZonedDateTime end = start.plusMinutes(30);
+
+        CreateActivityForm createActivityForm = new CreateActivityForm(start, end, testCategoryName);
+
+        MvcResult result = mvc.perform(post("/activity")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(createActivityForm))
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        Activity createdActivity = objectMapper.readValue(result.getResponse().getContentAsString(), Activity.class);
+
+        assertTrue(createdActivity.getStartDateTime().isEqual(start));
+        assertTrue(createdActivity.getEndDateTime().isEqual(end));
+        assertTrue(createdActivity.getCategory().getName().equals(testCategoryName));
+    }
+
     private void createCategory(String categoryName) throws Exception {
-        ObjectMapper objectMapper = new ObjectMapper();
         CreateCategoryForm createCategoryForm = new CreateCategoryForm(categoryName);
 
         mvc.perform(post("/category")
@@ -287,6 +298,14 @@ public class ActivityTests extends JwtLoggedInBaseTest {
                 .header(AUTHORIZATION, authHeader))
                 .andExpect(status().isOk())
                 .andReturn();
+    }
+
+    private void createActivity(CreateActivityForm createActivityForm) throws Exception {
+        mvc.perform(post("/activity")
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
+                .content(objectMapper.writeValueAsString(createActivityForm))
+                .header(AUTHORIZATION, authHeader))
+                .andExpect(status().isOk());
     }
 
 }
