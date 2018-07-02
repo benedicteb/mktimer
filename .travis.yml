@@ -19,4 +19,4 @@ before_script:
   - cd mktimer-backend && docker-compose up -d
 
 after_success:
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then .scripts/tag_release.sh; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then sh .scripts/tag_release.sh; fi
