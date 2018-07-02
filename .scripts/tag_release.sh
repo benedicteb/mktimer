@@ -1,4 +1,6 @@
 #!/bin/sh
+cd mktimer-backend
+
 git config --global user.email "builds@travis-ci.com"
 git config --global user.name "Travis CI"
 
