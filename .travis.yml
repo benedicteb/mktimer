@@ -16,7 +16,7 @@ before_install:
 
 before_script:
   - sudo service postgresql stop
-  - cd mktimer-backend && docker-compose up -d
+  - cd mktimer-backend && docker-compose up -d && cd ../
 
 after_success:
   - if [ "$TRAVIS_BRANCH" = "master" ]; then sh .scripts/tag_release.sh; fi
