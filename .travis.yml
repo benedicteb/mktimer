@@ -15,10 +15,11 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 before_script:
+  # so no port battle between travis and docker
   - sudo service postgresql stop
-  - cd mktimer-backend
-  - docker-compose up -d
+
+script:
+  - .scripts/run_backend_tests.sh
 
 after_success:
-  - cd ../
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then sh .scripts/tag_release.sh; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then .scripts/tag_release.sh; fi
