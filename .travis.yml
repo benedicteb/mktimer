@@ -15,5 +15,5 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 before_script:
-  - sudo systemctl stop postgresql.service
+  - sudo service postgresql stop
   - cd mktimer-backend && docker-compose up -d
