@@ -19,7 +19,7 @@ before_script:
   - sudo service postgresql stop
 
 script:
-  - .scripts/run_backend_tests.sh
+  - sh .scripts/run_backend_tests.sh
 
 after_success:
-  - if [ "$TRAVIS_BRANCH" = "master" ]; then .scripts/tag_release.sh; fi
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then sh .scripts/tag_release.sh; fi
