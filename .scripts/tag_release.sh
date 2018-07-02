@@ -11,6 +11,9 @@ if [ "$TRAVIS_BRANCH" = "master" ]; then
 
   tag="travistest-v$mvn_version"
 
+  echo $mvn_version
+  echo $tag
+
   git tag -a $tag -m "Released version $version"
   git push origin $tag
 fi
