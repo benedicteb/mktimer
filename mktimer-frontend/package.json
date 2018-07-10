@@ -1,0 +1,36 @@
+{
+  "name": "mktimer-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for mktimer",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack",
+    "watch": "webpack --watch",
+    "start": "npm run build && http-server dist/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/benedicteb/mktimer.git"
+  },
+  "author": "Benedicte Emilie Brækken <b@brkn.io>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/benedicteb/mktimer/issues"
+  },
+  "homepage": "https://github.com/benedicteb/mktimer#readme",
+  "dependencies": {
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-react": "^6.24.1",
+    "html-webpack-plugin": "^3.2.0",
+    "http-server": "^0.11.1",
+    "webpack": "^4.15.1",
+    "webpack-cli": "^3.0.8",
+    "webpack-subresource-integrity": "^1.1.0-rc.4"
+  }
+}
