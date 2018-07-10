@@ -31,6 +31,7 @@
     "http-server": "^0.11.1",
     "webpack": "^4.15.1",
     "webpack-cli": "^3.0.8",
+    "webpack-livereload-plugin": "^2.1.1",
     "webpack-subresource-integrity": "^1.1.0-rc.4"
   }
 }
