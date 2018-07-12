@@ -1,5 +1,4 @@
-import {createStore} from "redux";
-import {connect} from "react-redux";
+import { createStore } from "redux";
 
 import reducer from "./reducers";
 

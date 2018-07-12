@@ -2,7 +2,7 @@ const defaultState = {
   loggedIn: false
 };
 
-export default function text(state = defaultState, action) {
+export default function user(state = defaultState, action) {
   switch (action.type) {
     case "USER_LOGGED_IN":
       return {

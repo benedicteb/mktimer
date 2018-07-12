@@ -1,0 +1,14 @@
+.login-form {
+  padding: 100px 0 0;
+  width: 50%;
+  margin: auto;
+  text-align: center;
+}
+
+.form-control {
+  padding: 5px 0;
+}
+
+.login-button {
+  margin: 15px 0;
+}

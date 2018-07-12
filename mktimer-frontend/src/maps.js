@@ -1,7 +1,25 @@
-const mapDispatchToProps = dispatch => ({});
+import { genTextChangeDispatch } from "./utils";
+import { getJwtToken } from "./mktimer";
 
-const mapStateToProps = state => ({
-  user: state.user
+const mapDispatchToProps = dispatch => ({
+  loginFormDispatch: {
+    onUsernameTextChange: genTextChangeDispatch(
+      "USERNAME_TEXT_CHANGED",
+      dispatch
+    ),
+    onPasswordTextChange: genTextChangeDispatch(
+      "PASSWORD_TEXT_CHANGED",
+      dispatch
+    ),
+    onLoginButtonClick: (username, password) => {
+      getJwtToken(username, password);
+    }
+  }
 });
 
-export {mapDispatchToProps, mapStateToProps};
+const mapStateToProps = state => ({
+  user: state.user,
+  loginFormProps: state.loginForm
+});
+
+export { mapDispatchToProps, mapStateToProps };
