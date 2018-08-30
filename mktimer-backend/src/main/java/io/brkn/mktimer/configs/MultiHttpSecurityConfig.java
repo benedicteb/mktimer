@@ -39,6 +39,7 @@ public class MultiHttpSecurityConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
+                    .cors().and()
                     .csrf()
                         .disable()
                     .antMatcher("/activity/*")
@@ -60,6 +61,7 @@ public class MultiHttpSecurityConfig {
         @Override
         protected void configure(HttpSecurity http) throws Exception {
             http
+                    .cors().and()
                     .csrf()
                         .disable()
                     .authorizeRequests()
